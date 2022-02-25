@@ -1,6 +1,7 @@
-import { readDB } from "../../../lib/dbController.js";
+import { readDB, writeDB } from "../../../lib/dbController.js";
 
 const getUsers = () => readDB("users");
+const setUsers = (data) => writeDB("users", data);
 
 export default async function handle(req, res) {
   const {
@@ -20,15 +21,25 @@ export default async function handle(req, res) {
           });
         }
 
-        const refreshExpire = Date.parse(user.refreshExpire);
         const present = Date.now();
-
         // refresh토큰이 만료되지 않았을경우.
-        if (refreshExpire - present > 0) {
+        if (user.refreshExpire - present > 0) {
           // 새로운 access토큰 발급. (refresh는 기존 그대로)
+          const accessToken = Math.random().toString(36).substr(2);
+          const accessExpire = Date.now() + Number(process.env.NEXT_PUBLIC_ACCEESS_AGE);
+          const newUser = {
+            ...user,
+            accessExpire,
+            accessToken,
+          };
+
+          const idx = users.findIndex((user) => user.refreshToken === refreshToken);
+          users.splice(idx, 1, newUser);
+          setUsers(users);
+
           res.status(200).json({
             tokenType: "Bearer",
-            accessToken: Math.random().toString(36),
+            accessToken,
             accessExpireAge: 300,
             refreshToken: user.refreshToken,
             refreshExpireAge: 1800,
