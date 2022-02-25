@@ -1,0 +1,36 @@
+[
+  {
+    "id": "a",
+    "address": "1 mock address",
+    "email": "1 mock email",
+    "phone": "1 mock phone"
+  },
+
+  {
+    "id": "b",
+    "address": "2 mock address",
+    "email": "2 mock email",
+    "phone": "2 mcok phone"
+  },
+
+  {
+    "id": "c",
+    "address": "3 mock address",
+    "email": "3 mock email",
+    "phone": "3 mock phone"
+  },
+
+  {
+    "id": "d",
+    "address": "4 mock address",
+    "email": "4 mock email",
+    "phone": "4 mock phone"
+  },
+
+  {
+    "id": "e",
+    "address": "5 mock address",
+    "email": "5 mock email",
+    "phone": "5 mock phone"
+  }
+]
