@@ -1,7 +1,7 @@
-import { readDB } from "../../../lib/dbController.js";
+import { readDB, writeDB } from "../../../lib/dbController.js";
 
 const getUsers = () => readDB("users");
-
+const setUsers = (data) => writeDB("users", data);
 export default async function handle(req, res) {
   const {
     body: { id, password },
@@ -12,28 +12,39 @@ export default async function handle(req, res) {
     switch (method) {
       case "POST":
         const users = await getUsers();
-        const checkUser = users.some(
-          (user) => user.id === id && user.password === password
-        );
+        const checkUser = users.some((user) => user.id === id && user.password === password);
 
         if (!checkUser) {
           res.status(401).json({
             msg: "아이디 혹은 비밀번호를 확인해 주세요",
           });
         } else {
-          let accessExpire = new Date();
-          let refreshExpire = new Date();
+          let accessExpire = Date.now() + Number(process.env.NEXT_PUBLIC_ACCEESS_AGE);
+          let refreshExpire = Date.now() + Number(process.env.NEXT_PUBLIC_REFRESH_AGE);
 
-          accessExpire.setSeconds(+process.env.NEXT_PUBLIC_ACCEESS_AGE);
-          refreshExpire.setSeconds(+process.env.NEXT_PUBLIC_REFRESH_AGE);
+          const accessToken = Math.random().toString(36).substr(2);
+          const refreshToken = Math.random().toString(36).substr(2);
+
+          const newUser = {
+            id,
+            password,
+            accessExpire,
+            accessToken,
+            refreshExpire,
+            refreshToken,
+          };
+
+          const idx = users.findIndex((user) => user.id === id);
+          users.splice(idx, 1, newUser);
+          setUsers(users);
 
           res.status(200).json({
-            token_type: "Bearer",
-            access_token: Math.random().toString(36),
-            accessExpireAge: process.env.NEXT_PUBLIC_ACCEESS_AGE,
+            tokenType: "Bearer",
+            accessToken,
+            accessExpireAge: Number(process.env.NEXT_PUBLIC_ACCEESS_AGE),
 
-            refresh_token: Math.random().toString(36),
-            refreshExpireAge: process.env.NEXT_PUBLIC_REFRESH_AGE,
+            refreshToken,
+            refreshExpireAge: Number(process.env.NEXT_PUBLIC_REFRESH_AGE),
           });
         }
 
