@@ -9,6 +9,7 @@ export default async function handler(req, res) {
     query: { id },
     method,
   } = req;
+
   try {
     switch (method) {
       case "GET":
@@ -20,11 +21,9 @@ export default async function handler(req, res) {
             msg: "로그인후 이용가능한 서비스 입니다.",
           });
         }
-
-        const accessExpire = Date.parse(user.accessExpire);
         const present = Date.now();
 
-        if (accessExpire - present < 0) {
+        if (user.accessExpire - present < 0) {
           res.status(401).json({
             msg: "토큰이 만료되었습니다.",
           });
@@ -33,10 +32,7 @@ export default async function handler(req, res) {
         // access토큰이 만료되지 않았을경우
         const usersDetail = await getUsersDetail();
 
-        const userDetail = usersDetail.find(
-          (userDetail) => userDetail.id === id
-        );
-        console.log(user.accessExpire);
+        const userDetail = usersDetail.find((userDetail) => userDetail.id === id);
         res.setHeader("Access-Token-Expires-At", user.accessExpire);
         res.status(200).json({
           userDetail,
