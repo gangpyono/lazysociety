@@ -1,4 +1,4 @@
-import { readDB, writeDB } from "../../../lib/dbController.js";
+import { readDB, writeDB } from "../../../controller/dbController.js";
 
 const getUsers = () => readDB("users");
 const setUsers = (data) => writeDB("users", data);
@@ -12,7 +12,7 @@ export default async function handle(req, res) {
     switch (method) {
       case "POST":
         const users = await getUsers();
-        const checkUser = users.some((user) => user.id === id && user.password === password);
+        const checkUser = users.some((user) => user.id === id && user.password === +password);
 
         if (!checkUser) {
           res.status(401).json({
@@ -27,7 +27,7 @@ export default async function handle(req, res) {
 
           const newUser = {
             id,
-            password,
+            password: +password,
             accessExpire,
             accessToken,
             refreshExpire,
@@ -39,20 +39,20 @@ export default async function handle(req, res) {
           setUsers(users);
 
           res.status(200).json({
-            tokenType: "Bearer",
+            tokenType: "Bearer", //사용 x
             accessToken,
-            accessExpireAge: Number(process.env.NEXT_PUBLIC_ACCEESS_AGE),
+            accessExpireAge: Number(process.env.NEXT_PUBLIC_ACCEESS_AGE), //사용 x
 
             refreshToken,
-            refreshExpireAge: Number(process.env.NEXT_PUBLIC_REFRESH_AGE),
+            refreshExpireAge: Number(process.env.NEXT_PUBLIC_REFRESH_AGE), //사용 x
           });
         }
-
         break;
+
       default:
         // 405 : Method Not Allowed
         res.setHeader("Allow", ["POST"]);
-        res.status(405).end(`Method ${method} Not Allowed`);
+        res.status(405).json({ msg: `Method ${method} Not Allowed` });
     }
   } catch (error) {
     //예상하지못한 오류

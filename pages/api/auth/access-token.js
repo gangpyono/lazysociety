@@ -1,4 +1,4 @@
-import { readDB, writeDB } from "../../../lib/dbController.js";
+import { readDB, writeDB } from "../../../controller/dbController.js";
 
 const getUsers = () => readDB("users");
 const setUsers = (data) => writeDB("users", data);
@@ -38,22 +38,22 @@ export default async function handle(req, res) {
           setUsers(users);
 
           res.status(200).json({
-            tokenType: "Bearer",
+            tokenType: "Bearer", // 사용 x
             accessToken,
-            accessExpireAge: 300,
+            accessExpireAge: 300, // 사용 x
             refreshToken: user.refreshToken,
-            refreshExpireAge: 1800,
+            refreshExpireAge: 1800, // 사용 x
           });
         } else {
-          // refresh 토큰 만료시 로그인 페이지로 redirect.
-          // 303 : 일시적 redirect
-          res.redirect(303, "/");
+          res.status(401).json({
+            msg: "이용시간이 초과되었습니다.",
+          });
         }
         break;
       default:
         // 405 : Method Not Allowed
         res.setHeader("Allow", ["POST"]);
-        res.status(405).end(`Method ${method} Not Allowed`);
+        res.status(405).json({ msg: `Method ${method} Not Allowed` });
     }
   } catch (error) {
     //예상하지못한 오류

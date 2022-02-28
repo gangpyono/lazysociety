@@ -6,7 +6,7 @@ const basePath = resolve();
 const filenames = {
   users: resolve(basePath, "data/users.json"),
   userList: resolve(basePath, "data/userList.json"),
-  userDetail: resolve(basePath, "data/userDetail.json"),
+  userInfoList: resolve(basePath, "data/userInfoList.json"),
 };
 
 //파일 읽어오기

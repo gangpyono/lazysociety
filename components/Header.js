@@ -2,34 +2,48 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
 import Link from "next/link";
-import Router from "next/router";
+import { useRouter } from "next/router";
+import { getToken } from "../controller/tokenController.js";
 
-import { getToken } from "../lib/tokenController";
-
-const Header = () => {
+const Header = ({ href }) => {
+  const router = useRouter();
   const [accessToken, setAccessToken] = useState(null);
 
   useEffect(() => {
     setAccessToken(getToken("accessToken"));
-  }, accessToken);
+  }, [accessToken]);
 
-  return (
-    <Container>
-      {accessToken ? (
-        <Button
-          onClick={() => {
-            Router.push(`/mypage`);
-          }}
-        >
-          마이페이지
-        </Button>
-      ) : (
-        <Link href="/login">
-          <Button>로그인</Button>
+  if (href === "/mypage") {
+    return (
+      <Container>
+        <Link href="/">
+          <Button>메인페이지</Button>
         </Link>
-      )}
-    </Container>
-  );
+      </Container>
+    );
+  }
+
+  if (href === "/") {
+    return (
+      <Container>
+        {accessToken ? (
+          <Button
+            onClick={() => {
+              router.push(`/mypage`);
+            }}
+          >
+            마이페이지
+          </Button>
+        ) : (
+          <Link href="/login">
+            <Button>로그인</Button>
+          </Link>
+        )}
+      </Container>
+    );
+  }
+
+  return null;
 };
 
 export default Header;
